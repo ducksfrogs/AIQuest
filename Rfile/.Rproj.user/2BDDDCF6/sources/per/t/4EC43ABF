@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1602888382940.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3980149969",
+    "id" : "4EC43ABF",
+    "lastKnownWriteTime" : 1602887929,
+    "last_content_update" : 1602887929,
+    "path" : "~/Documents/AIQuest/data/first/sample_submission.csv",
+    "project_path" : null,
+    "properties" : {
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "text"
+}
