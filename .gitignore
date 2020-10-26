@@ -4,3 +4,6 @@
 .RData
 .Rhistory
 .Rproj.user
+
+.ipynb_checkpoints/*
+.virtual_documents/*
