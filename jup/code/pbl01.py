@@ -7,4 +7,4 @@ cat_name = pd.read_csv('../data/category_names.csv')
 test = pd.read_csv('../data/test.csv')
 
 
-sales.columns = 
+sales.columns = 'date shop_id item_id price amount'.split()
