@@ -87,6 +87,6 @@ cols = ['month_idx','shop_id', 'item_id']
 
 for i in range(22):
     sales = train[train.date==i]
-    matrix.append(np.array(list(product([i], sales.shop_id.unique(), sales.item_id.unique())), dtype='int16'))
+    matrix.append(np.array(list(product([i], sales.shop_id.unique(), sales.item_id.unique())), dtype='int64'))
 
 matrix = pd.DataFrame(np.vstack(matrix), columns=cols)
