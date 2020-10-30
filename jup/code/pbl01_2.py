@@ -131,3 +131,27 @@ matrix.fillna(0,inplace=True)
 
 matrix = pd.merge(matrix, item_cat, on=['item_id'], how='left')
 matrix = pd.merge(matrix, cat_name, on=['cat_id'], how='left')
+
+#Target lags
+
+def lag_feature(df, lags, col):
+    tmp = df[['month_idx', 'shop_id','item_id', col]]
+    for i in lags:
+        shifted = tmp.copy()
+        shifted.columns = ['month_idx','shop_id', 'item_id', col+'_lag_'+str(i)]
+        shifted['month_idx'] += i
+        df = pd.merge(df, shifted, on=['month_idx','shop_id','item_id'], how='left')
+    return df
+
+matrix = lag_feature(matrix, [1,2,3,6,12], 'item_cnt_month')
+
+#Mean encorded feature
+
+
+group = matrix.groupby(['month_idx']).agg({'item_cnt_month':['mean']})
+group.columns = ['date_avg_item_cnt']
+group.reset_index(inplace=True)
+
+matrix = pd.merge(matrix, group, on=['month_idx'], how='left')
+matrix['date_avg_item_cnt'] = matrix['date_avg_item_cnt'].astype(np.float16)
+ma
