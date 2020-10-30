@@ -18,6 +18,8 @@ submit = pd.read_csv(',,/data/sample_submission.csv')
 
 train.columns = 'date shop_id item_id price item_cnt_day'.split()
 test.columns = 'idx item_id shop_id'.split()
+cat_name.columns = 'cat_id cat_name'.split()
+item_cat.columns = 'item_id cat_id'.split()
 
 plt.figure(figsize=(10,4))
 sns.boxplot(x=train.item_cnt_day)
