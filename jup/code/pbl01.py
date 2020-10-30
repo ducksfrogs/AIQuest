@@ -25,6 +25,11 @@ sns.boxplot(x=train.item_cnt_day)
 plt.figure(figsize=(10,4))
 sns.boxplot(x=train.price)
 
+train = train[train.price <200000]
+train = train[train.item_cnt_day < 120]
+
+train.loc[train.item_cnt_day < 0, 'item_cnt_day'] = 0
+
 def add_monthly_idx(x):
     if x >= '2018-01-01' and x < '2018-02-01':
         return 0
