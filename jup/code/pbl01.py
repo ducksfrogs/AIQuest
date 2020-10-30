@@ -1,5 +1,14 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+
+from itertools import product
+
+import seaborn as sns
+from xgboost import XGBRegressor
+from xgboost import plot_importance
+
+
 
 train = pd.read_csv('../data/sales_history.csv')
 item_cat = pd.read_csv('../data/item_categories.csv')
@@ -7,8 +16,14 @@ cat_name = pd.read_csv('../data/category_names.csv')
 test = pd.read_csv('../data/test.csv')
 submit = pd.read_csv(',,/data/sample_submission.csv')
 
-train.columns = 'date shop_id item_id price amount'.split()
+train.columns = 'date shop_id item_id price item_cnt_day'.split()
 test.columns = 'idx item_id shop_id'.split()
+
+plt.figure(figsize=(10,4))
+sns.boxplot(x=train.item_cnt_day)
+
+plt.figure(figsize=(10,4))
+sns.boxplot(x=train.price)
 
 def add_monthly_idx(x):
     if x >= '2018-01-01' and x < '2018-02-01':
