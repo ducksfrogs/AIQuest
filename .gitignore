@@ -9,3 +9,4 @@
 .virtual_documents/*
 
 data/*
+*.pkl
