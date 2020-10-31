@@ -6,9 +6,7 @@ import seaborn as sns
 from xgboost import XGBRegressor
 from xgboost import plot_importance
 
-from sklearn.preprocessing import LabelEncoder
-from itertools import product
-
+import gc
 
 data = pd.read_pickle('data.pkl')
 
@@ -33,8 +31,35 @@ data = data[[
     'item_first_sale'
 ]]
 
-X_train = data[data.month_idx < 22].drop(['item_cnt_month'], axis=1)
-y_train = data[data.month_idx < 22]['item_cnt_month']
-X_valid = data[data.month_idx == 22].drop(['item_cnt_month'], axis=1)
-y_valid  = data[data.month_idx == 22]['item_cnt_month']
-X_test =
+X_train = data[data.month_idx < 21].drop(['item_cnt_month'], axis=1)
+y_train = data[data.month_idx < 21]['item_cnt_month']
+X_valid = data[data.month_idx == 21].drop(['item_cnt_month'], axis=1)
+y_valid  = data[data.month_idx == 21]['item_cnt_month']
+X_test = data[data.month_idx ==22].drop(['item_cnt_month'], axis=1)
+
+ts = time.time()
+
+model = XGBRegressor(
+    max_depth=8,
+    n_estimators = 1000,
+    min_child_weight = 300,
+    colsample_bytree=0.8,
+    eta=0.3,
+    seed=42
+)
+
+model.fit(X_train, y_train,eval_metric="rmse", eval_set=[(X_train, y_train),(X_valid, y_valid)],
+    verbose=True,
+    early_stopping_rounds=10)
+
+time.time() - ts
+
+y_pred = model.predict(X_valid).clip(0,20)
+y_test = model.predict(X_test).clip(0,20)
+
+submission = pd.DataFrame({
+    "ID": test.index,
+    "item_cnt_month": y_test
+})
+
+submission.to_csv('xgb_submission.csv', index=False )
