@@ -178,6 +178,90 @@ matrix = lag_feature(matrix, [1,2,4,6,12], 'date_shop_avg_item_cnt')
 matrix.drop(['date_shop_avg_item_cnt'], axis=1, inplace=True)
 
 
+group = matrix.groupby(['month_idx','cat_id']).agg({'item_cnt_month':['mean']})
+group.columns = ['date_cat_avg_item_cnt']
+group.reset_index(inplace=True)
+
+matrix = pd.merge(matrix, group, on=['month_idx','cat_id'], how='left')
+matrix = lag_feature(matrix, [1], 'date_cat_avg_item_cnt')
+matrix['date_cat_avg_item_cnt'] = matrix['date_cat_avg_item_cnt'].astype(np.float16)
+matrix.drop(['date_cat_avg_item_cnt'], axis=1, inplace=True )
+
+
+group = matrix.groupby(['month_idx','shop_id','cat_id']).agg({'item_cnt_month':['mean']})
+group.columns = ['date_shop_cat_avg_item_cnt']
+group.reset_index(inplace=True)
+
+matrix = pd.merge(matrix, group, on=['month_idx','shop_id','cat_id'], how='left')
+matrix['date_shop_cat_avg_item_cnt'] = matrix['date_shop_cat_avg_item_cnt'].astype(np.float16)
+matrix = lag_feature(matrix, [1], 'date_shop_cat_avg_item_cnt')
+matrix.drop(['date_shop_cat_avg_item_cnt'], axis=1, inplace=True)
+
+
 #Trend features
 
-group = train.gr
+ts = time.time()
+
+group = train.groupby(['item_id']).agg({'price':['mean']})
+group.columns = ['item_avg_item_price']
+group.reset_index(inplace=True)
+
+matrix = pd.merge(matrix, group, on=['item_id'], how='left')
+matrix['item_avg_item_price'] = matrix['item_avg_item_price'].astype(np.float16)
+
+
+group = train.groupby(['month_idx','item_id']).agg({'price':['mean']})
+group.columns = ['date_item_avg_item_price']
+group.reset_index(inplace=True)
+
+matrix = pd.merge(matrix, group, on=['month_idx','item_id'], how='left')
+matrix['date_item_avg_item_price'] = matrix['date_item_avg_item_price'].astype(np.float16)
+
+lags = [1,2,3,4,5,6]
+matrix= lag_feature(matrix, lags, 'date_item_avg_item_price')
+
+for i in lags:
+    matrix['delta_price_lag_'+str(i)] = \
+        (matrix['date_item_avg_item_price_lag_'+str(i)] - matrix['item_avg_item_price'])/matrix['item_avg_item_price']
+
+def select_trend(row):
+    for i in lags:
+        if row['delta_price_lag_'+str(i)]:
+            return row['delta_price_lag_'+str(i)]
+    return 0
+
+
+matrix['delta_price_lag'] = matrix.apply(select_trend, axis=1)
+matrix['delta_price_lag'] = matrix['delta_price_lag'].astype(np.float16)
+matrix['delta_price_lag'].fillna(0, inplace=True)
+
+fetures_to_drop = ['item_avg_item_price','date_item_avg_item_price']
+
+for i in lags:
+    fetures_to_drop += ['date_item_avg_item_price_lag_'+str(i)]
+    fetures_to_drop += ['delta_price_lag_'+str(i)]
+
+matrix.drop(fetures_to_drop, axis=1, inplace=True)
+
+time.time() - ts
+
+#Last month shop revenue trend
+group = train.groupby(['month_idx','shop_id']).agg({'revenue':['sum']})
+group.columns = ['date_shop_revenue']
+group.reset_index(inplace=True)
+
+matrix = pd.merge(matrix, group, on=['month_idx','shop_id'], how='left')
+matrix['date_shop_revenue'] = matrix['date_shop_revenue'].astype(np.float32)
+
+
+group = group.groupby(['shop_id']).agg({'date_shop_revenue':['mean']})
+group.columns = ['shop_avg_revenue']
+group.reset_index(inplace=True)
+
+matrix = pd.merge(matrix, group, on=['shop_id'], how='left')
+matrix['shop_avg_revenue'] = matrix['shop_avg_revenue'].astype(np.float32)
+
+matrix['delta_revenue'] = (matrix['date_shop_revenue']-matrix['shop_avg_revenue'])/matrix['shop_avg_revenue']
+matrix['delta_revenue'] = matrix['delta_revenue'].astype(np.float16)
+matrix = lag_feature(matrix, [1], 'delta_revenue')
+matrix.drop(['date_shop_revenue','shop_avg_revenue','delta_revenue'], axis=1, inplace=True)
