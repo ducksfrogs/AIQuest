@@ -9,6 +9,8 @@ from xgboost import plot_importance
 from sklearn.preprocessing import LabelEncoder
 from itertools import product
 
+import pickle
+
 
 train = pd.read_csv('../data/sales_history.csv')
 item_cat = pd.read_csv('../data/item_categories.csv')
@@ -265,3 +267,42 @@ matrix['delta_revenue'] = (matrix['date_shop_revenue']-matrix['shop_avg_revenue'
 matrix['delta_revenue'] = matrix['delta_revenue'].astype(np.float16)
 matrix = lag_feature(matrix, [1], 'delta_revenue')
 matrix.drop(['date_shop_revenue','shop_avg_revenue','delta_revenue'], axis=1, inplace=True)
+
+
+# Special Features
+
+matrix['month'] = matrix['month_idx'] % 12
+
+days = pd.Series([31,28,31,30,31,30,31,31,30,31,30,31])
+matrix['days'] = matrix['month'].map(days).astype(np.int8)
+
+cache = {}
+matrix['item_last_sale'] = -1
+matrix['item_last_sale'] = matrix['item_last_sale'].astype(np.int8)
+for idx, row in matrix.iterrows():
+    key = row.item_id
+    if key not in cache:
+        if row.item_cnt_month !=0:
+            cache[key] = row.month_idx
+    else:
+        last_date_block_num = cache[key]
+        if row.month_idx > last_date_block_num:
+            matrix.at[idx, 'item_last_sale'] = row.month_idx - last_date_block_num
+            cache[key] = row.month_idx
+
+
+matrix['item_shop_first_sale'] = matrix['month_idx'] - matrix.groupby(['item_id','shop_id'])['month_idx'].transform('min')
+matrix['item_first_sale'] = matrix['month_idx'] - matrix.groupby('item_id')['month_idx'].transform('min')
+
+
+def fill_na(df):
+    for col in df.columns:
+        if ('_lag_' in col) & (df[col].isnull().any()):
+            if ('item_cnt' in col):
+                df[col].fillna(0, inplace=True)
+    return df
+
+
+matrix = fill_na(matrix)
+
+matrix.to_pickle('data.pkl')
