@@ -11,36 +11,15 @@ import gc
 data = pd.read_pickle('data.pkl')
 
 data = data[[
-    'month_idx',
-    'shop_id',
-    'item_id',
-    'item_cnt_month',
-    'cat_id',
-    'type_code',
-    'item_cnt_month_lag_1',
-    'item_cnt_month_lag_2',
-    'item_cnt_month_lag_3',
-    'item_cnt_month_lag_6',
-    'item_cnt_month_lag_12',
-    'date_avg_item_cnt_lag_1_x',
-    'date_item_avg_item_cnt_x',
-    'date_avg_item_cnt_lag_1_y',
-    'date_item_avg_item_cnt_y',
-    'date_avg_item_cnt_lag_1',
-    'date_shop_avg_item_cnt_lag_1',
-    'date_shop_avg_item_cnt_lag_2',
-    'date_shop_avg_item_cnt_lag_4',
-    'date_shop_avg_item_cnt_lag_6',
-    'date_shop_avg_item_cnt_lag_12',
-    'date_cat_avg_item_cnt_lag_1',
-    'date_shop_cat_avg_item_cnt_lag_1',
-    'delta_price_lag',
-    'delta_revenue_lag_1',
-    'month',
-    'days',
-    'item_last_sale',
-    'item_shop_first_sale',
-    'item_first_sale'
+'month_idx', 'shop_id', 'item_id', 'item_cnt_month', 'cat_id',
+       'type_code', 'item_cnt_month_lag_1', 'item_cnt_month_lag_2',
+       'item_cnt_month_lag_3', 'item_cnt_month_lag_6', 'item_cnt_month_lag_12',
+       'date_avg_item_cnt_lag_1', 'date_shop_avg_item_cnt_lag_1',
+       'date_shop_avg_item_cnt_lag_2', 'date_shop_avg_item_cnt_lag_4',
+       'date_shop_avg_item_cnt_lag_6', 'date_shop_avg_item_cnt_lag_12',
+       'date_cat_avg_item_cnt_lag_1', 'date_shop_cat_avg_item_cnt_lag_1',
+       'delta_price_lag', 'delta_revenue_lag_1', 'month', 'days',
+       'item_last_sale', 'item_shop_first_sale', 'item_first_sale'
 ]]
 
 X_train = data[data.month_idx < 21].drop(['item_cnt_month'], axis=1)
