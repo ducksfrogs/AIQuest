@@ -2,19 +2,25 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from itertools import product
-
 import seaborn as sns
 from xgboost import XGBRegressor
 from xgboost import plot_importance
 
+from sklearn.preprocessing import LabelEncoder
+from itertools import product
+
+import pickle
 
 
-train = pd.read_csv('../data/sales_history.csv')
-item_cat = pd.read_csv('../data/item_categories.csv')
+sales_train = pd.read_csv('../data/sales_history.csv')
+items = pd.read_csv('../data/item_categories.csv')
 cat_name = pd.read_csv('../data/category_names.csv')
-test = pd.read_csv('../data/test.csv')
+test = pd.read_csv('../data/test.csv', index_col=0)
 submit = pd.read_csv(',,/data/sample_submission.csv')
+
+
+#index change
+
 
 train.columns = 'date shop_id item_id price item_cnt_day'.split()
 test.columns = 'idx item_id shop_id'.split()
@@ -82,11 +88,12 @@ def add_monthly_idx(x):
 
 train['month_idx'] = train['date'].apply(add_monthly_idx)
 
-matrix = []
-cols = ['month_idx','shop_id', 'item_id']
+#Feature engineering
 
-for i in range(22):
-    sales = train[train.date==i]
-    matrix.append(np.array(list(product([i], sales.shop_id.unique(), sales.item_id.unique())), dtype='int64'))
+cat_name['sprit'] = cat_name['cat_name'].str.split('-')
+cat_name['type'] = cat_name['sprit'].map(lambda x: x[0].strip())
+cat_name['type-code'] = LabelEncoder().fit_transform(cat_name['type'])
+cat_name = cat_name[['cat_id','type_code']]
 
-matrix = pd.DataFrame(np.vstack(matrix), columns=cols)
+grid = []
+for block_num in
