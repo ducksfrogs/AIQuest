@@ -16,7 +16,7 @@ train = pd.read_csv('../data/sales_history.csv')
 item_cat = pd.read_csv('../data/item_categories.csv')
 cat_name = pd.read_csv('../data/category_names.csv')
 test = pd.read_csv('../data/test.csv', index_col=0)
-submit = pd.read_csv(',,/data/sample_submission.csv')
+submit = pd.read_csv('../data/sample_submission.csv')
 
 
 #index change
