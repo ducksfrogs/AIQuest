@@ -12,9 +12,10 @@ data = pd.read_pickle('data.pkl')
 
 data = data[[
         'month_idx', 'shop_id', 'item_id', 'item_cnt_month', 'cat_id',
-           'type_code', 'item_cnt_month_lag_1', 'item_cnt_month_lag_2',
+       'type_code', 'item_cnt_month_lag_1', 'item_cnt_month_lag_2',
        'item_cnt_month_lag_3', 'item_cnt_month_lag_6', 'item_cnt_month_lag_12',
-       'month', 'days', 'item_shop_first_sale', 'item_first_sale'
+       'delta_price_lag', 'delta_revenue_lag_1', 'month', 'days',
+       'item_shop_first_sale', 'item_first_sale'
 ]]
 
 X_train = data[data.month_idx < 21].drop(['item_cnt_month'], axis=1)
