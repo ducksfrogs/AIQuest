@@ -1,0 +1,7 @@
+library(tidyverse)
+library(ggeffects)
+library(lme4)
+library(MASS)
+glm0a <- glm(vs ~wt, data=mtcars, family = 'binomial')
+(glm0a_p <- ggpredict(glm0a, terms = 'wt'))
+glm0a_p %>% as_tibble()
