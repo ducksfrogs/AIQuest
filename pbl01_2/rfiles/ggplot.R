@@ -35,3 +35,10 @@ w_lm
 w_glm
 wglm_p <- ggpredict(w_glm, terms = 'height')
 plot(wglm_p)
+wglm_p
+
+
+ggplot() +
+  geom_point(data= women, aes(x=height, y=weight)) +
+  geom_line(data=wglm_p, aes(x=x, y=predicted)) +
+  geom_ribbon(data = wglm_p, aes(x=x, ymin=conf.low, ymax=conf.high), alpha=0.2)
