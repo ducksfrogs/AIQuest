@@ -18,7 +18,7 @@ ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy), color = "blue")
 ggplot(data = mpg) 
 + geom_point(mapping = aes(x = displ, y = hwy))
-
+irisdata <- iris
 ggplot(data = irisdata) +
   geom_point(mapping = aes(x=Sepal.Length, y=Petal.Length, color=Species))
 data(father.son)
@@ -42,3 +42,4 @@ ggplot() +
   geom_point(data= women, aes(x=height, y=weight)) +
   geom_line(data=wglm_p, aes(x=x, y=predicted)) +
   geom_ribbon(data = wglm_p, aes(x=x, ymin=conf.low, ymax=conf.high), alpha=0.2)
+
