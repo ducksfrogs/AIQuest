@@ -1,4 +1,5 @@
 library(tidyverse)
+
 seq(1, 10)
 seq(2,10)
 
@@ -25,3 +26,12 @@ df <- tibble(x=c(5,2,NA))
 df
 arrange(df, x)
 arrange(df, desc(x))
+filter(flights, month %in% c(11,12))
+
+filter(flights, !(arr_delay >120 | dep_delay > 120))
+filter(flights, arr_delay <= 120, dep_delay <= 120)
+
+select(flights, year, month, day)
+select(flights, -(year:day))
+flights
+select(flights, time_hour, air_time, everything())
