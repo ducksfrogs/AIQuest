@@ -5,7 +5,7 @@
 .Rhistory
 .Rproj.user
 
-.zip
+*.zip
 
 .ipynb_checkpoints
 .virtual_documents
@@ -14,3 +14,7 @@ data/*
 *.pkl
 
 .idea/
+*.wav
+_MACOSX/
+
+second_term/input/
