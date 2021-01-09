@@ -78,3 +78,22 @@ s_linear = [gs.cv_results_['param_kernel']=='linear']
 
 plt.plot(gs.cv_results_['param_C'][s_linear].data,
          gs.cv_results_['mean_test_score'])
+
+
+# add gamma params to rbf
+C_range_exp = np.arange(-2.0, 10.0)
+C_range = 10 ** C_range_exp
+
+gamma_range_exp = np.arange(-10.0, 0.0, 3)
+gamma_range = 10 ** gamma_range_exp
+
+params = [
+    {'C': C_range,
+     'kernel': ['linear']},
+    {'C': C_range,
+     'gamma': gamma_range,
+     'kernel': ['rbf']}
+]
+
+gs = GridSearchCV(clf, params, n_jobs=-1, verbose=2)
+gs.fit(X_train, y_train)
