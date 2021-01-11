@@ -65,5 +65,36 @@ for i, (audio, label) in enumerate(waveform_ds.take(n)):
     label = label.numpy().decode('utf-8')
     ax.set_title(label)
 
+def get_spectrogram(waveform):
+    zero_padding = tf.zeros([160000] - tf.shape(waveform), dtype=tf.float64)
 
-tf.strings.split('input/data/train/*/', os.path.sep)
+    waveform = tf.cast(waveform, tf.float64)
+    equal_length = tf.concat([waveform, zero_padding], 0)
+    spectrogram = tf.signal.stft(equal_length, frame_length=255, frame_step=128)
+
+    spectrogram = tf.abs(spectrogram)
+
+    return spectrogram
+
+for waveform, label in waveform_ds.take(1):
+    label = label.numpy().decode('utf-8')
+    spectrogram = get_spectrogram(waveform)
+
+print("Label: ", label)
+print("Waveform shape: ", waveform.shape)
+print("Spectrogram shape :", spectrogram.shape)
+display.display(display.Audio(waveform, rate=16000))
+
+def plot_spectrogram(spectrogram, ax):
+    log_spec = np.log(spectrogram.T)
+    height = log_spec.shape[0]
+    X = np.arange(160000, step=height+1)
+    Y = range(height)
+    ax.pcolormesh(X,Y, log_spec)
+
+fig, axes = plt.subplots(2, figsize=(12,8))
+timescale = np.arange(waveform.shape[0])
+axes[0].plot(timescale, waveform.numpy())
+axes[0].set_title("Wave form")
+axes[0].set_xlim([0, 160000])
+plot_spectrogram(spectrogram.numpy(), axes[1])
