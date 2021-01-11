@@ -56,4 +56,9 @@ params = {
 
 }
 
-gs = GridSearchCV(clf, params)
+#gs = GridSearchCV(clf, params)
+
+from sklearn.model_selection import RandomizedSearchCV
+
+rs = RandomizedSearchCV(clf, params,n_iter=20, n_jobs=-1, verbose=2)
+rs.fit(X_train, y_train)
