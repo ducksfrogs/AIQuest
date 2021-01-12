@@ -56,3 +56,28 @@ melspec_test = np.array(melspec_test)
 
 import librosa.display
 librosa.display.specshow(melspec_normal[0])
+
+train = np.concatenate([melspec_normal, melspec_anomaly])
+train = train.reshape(train.shape[0],-1)
+test = melspec_test.reshape(melspec_test.shape[0], -1)
+
+train_Y = np.concatenate([np.zeros(len(melspec_normal)), np.ones(len(melspec_anomaly))])
+
+from sklearn.model_selection import train_test_split
+
+train_X, test_X, train_Y, test_Y = train_test_split(train, train_Y, test_size=0.33, random_state=42)
+
+from sklearn.preprocessing import MinMaxScaler
+
+scaler = MinMaxScaler()
+scaler.fit(train_X)
+train_X = scaler.transform(train_X)
+test_X = scaler.transform(test_X)
+
+import xgboost as xgb
+from sklearn.svm import SVC
+
+clf = SVC()
+
+clf.fit(train_X, train_Y)
+clf.score(test_X, test_Y)
