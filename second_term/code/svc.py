@@ -71,8 +71,8 @@ from sklearn.preprocessing import MinMaxScaler
 
 scaler = MinMaxScaler()
 scaler.fit(train_X)
-train_X = scaler.transform(train_X)
-test_X = scaler.transform(test_X)
+train_X_scale = scaler.transform(train_X)
+test_X_scale = scaler.transform(test_X)
 
 import xgboost as xgb
 from sklearn.svm import SVC
