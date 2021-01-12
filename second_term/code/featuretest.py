@@ -31,42 +31,13 @@ test = np.array(test)
 
 train = np.concatenate([normal, anomaly])
 
-#train_ds = pd.DataFrame(train)
-#train_ds['N_A'] = np.concatenate([np.zeros(len(normal)), np.ones(len(anomaly))])
-
-
 train_Y = np.concatenate([np.zeros(len(normal)), np.ones(len(anomaly))])
 
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(train, train_Y, test_size=0.33, random_state=42)
-
-
+train_X, test_X, train_Y, test_Y = train_test_split(train, train_Y, test_size=0.33, random_state=42)
 
 
-melspec_normal = []
-for n in normal:
-    m = librosa.feature.melspectrogram(n, n_mels=256)
-    m = librosa.power_to_db(m).astype(np.float32)
-    melspec_normal.append(m)
-melspec_normal = np.array(melspec_normal)
-
-melspec_anomaly = []
-for a in anomaly:
-    m = librosa.feature.melspectrogram(a, n_mels=256)
-    m = librosa.power_to_db(m).astype(np.float32)
-    melspec_anomaly.append(m)
-melspec_anomaly = np.array(melspec_anomaly)
-
-melspec_test = []
-for t in test:
-    m = librosa.feature.melspectrogram(t, n_mels=256)
-    m = librosa.power_to_db(m).astype(np.float32)
-    melspec_test.append(m)
-melspec_test = np.array(melspec_test)
-
-import librosa.display
-librosa.display.specshow(melspec_normal[0])
 
 import xgboost as xgb
 
@@ -76,12 +47,11 @@ from sklearn.ensemble import (RandomForestClassifier, AdaBoostClassifier,
 from sklearn.svm import SVC
 from sklearn.model_selection import KFold
 
-train = np.concatenate([melspec_normal, melspec_anomaly])
 
 train = train.reshape(train.shape[0],-1)
-test = melspec_test.reshape(melspec_test.shape[0], -1)
 
 train_Y = np.concatenate([np.zeros(len(melspec_normal)), np.ones(len(melspec_anomaly))])
+from sklearn.model_selection import KFold
 
 ntrain = train.shape[0]
 ntest = test.shape[0]
