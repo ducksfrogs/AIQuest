@@ -29,10 +29,6 @@ for file in files_test:
 test = np.array(test)
 
 
-plt.plot(normal[0])
-
-plt.plot(anomaly[0])
-
 melspec_normal = []
 for n in normal:
     m = librosa.feature.melspectrogram(n, n_mels=256)
@@ -66,8 +62,6 @@ from sklearn.model_selection import train_test_split
 train_X, test_X, train_Y, test_Y = train_test_split(train, target, test_size=0.33, random_state=42)
 
 
-
-
 from sklearn.preprocessing import MinMaxScaler
 
 scaler = MinMaxScaler()
@@ -80,5 +74,12 @@ from sklearn.svm import SVC
 
 clf = SVC()
 
-clf.fit(train_X, train_Y)
-clf.score(test_X, test_Y)
+clf.fit(train_X_scale, train_Y)
+
+pred = clf.predict(test_scale)
+
+sub = pd.read_csv('../input/sample_submission.csv', header=None)
+
+sub[1] = pred.astype('int')
+
+sub.to_csv('submit.csv')
