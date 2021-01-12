@@ -29,11 +29,35 @@ for file in files_test:
 test = np.array(test)
 
 
-train = np.concatenate([normal, anomaly])
+melspec_normal = []
+for n in normal:
+    m = librosa.feature.melspectrogram(n, n_mels=256)
+    m = librosa.power_to_db(m).astype(np.float32)
+    melspec_normal.append(m)
+melspec_normal = np.array(melspec_normal)
 
-train_Y = np.concatenate([np.zeros(len(normal)), np.ones(len(anomaly))])
+melspec_anomaly = []
+for a in anomaly:
+    m = librosa.feature.melspectrogram(a, n_mels=256)
+    m = librosa.power_to_db(m).astype(np.float32)
+    melspec_anomaly.append(m)
+melspec_anomaly = np.array(melspec_anomaly)
 
-from sklearn.metrics import train_test_split
+melspec_test = []
+for t in test:
+    m = librosa.feature.melspectrogram(t, n_mels=256)
+    m = librosa.power_to_db(m).astype(np.float32)
+    melspec_test.append(m)
+melspec_test = np.array(melspec_test)
+
+
+train = np.concatenate([melspec_normal, melspec_anomaly])
+train = train.reshape(train.shape[0],-1)
+test = melspec_test.reshape(melspec_test.shape[0], -1)
+
+train_Y = np.concatenate([np.zeros(len(melspec_normal)), np.ones(len(melspec_anomaly))])
+
+from sklearn.model_selection import train_test_split
 
 train_X, test_X, train_Y, test_Y = train_test_split(train, train_Y, test_size=0.33, random_state=42)
 
@@ -48,16 +72,12 @@ from sklearn.svm import SVC
 from sklearn.model_selection import KFold
 
 
-train = train.reshape(train.shape[0],-1)
 
-train_Y = np.concatenate([np.zeros(len(melspec_normal)), np.ones(len(melspec_anomaly))])
-from sklearn.model_selection import KFold
-
-ntrain = train.shape[0]
-ntest = test.shape[0]
+ntrain = train_X.shape[0]
+ntest = test_Y.shape[0]
 SEED = 0
 NFOLDS = 4
-kf = KFold(ntrain, n_fold=NFOLDS)
+kf = KFold(n_splits=NFOLDS)
 
 class SkearnHelper(object):
     def __init__(self, clf, seed=0, params=None):
@@ -83,15 +103,16 @@ def get_oof(clf, X_train, y_train, X_test):
     oof_test = np.zeros((ntest, ))
     oof_test_skf = np.empty((NFOLDS, ntest))
 
-    for i, (train_index, test_index) in enumerate(kf):
+    for i, (train_index, test_index) in enumerate(kf.split(X_train)):
         x_tr = X_train[train_index]
         y_tr = y_train[train_index]
         x_te = X_train[test_index]
+        y_te = y_train[test_index]
 
         clf.train(x_tr, y_tr)
 
         oof_train[test_index] = clf.predict(x_te)
-        oof_test_skf[i, :] = clf.predict(X_test)
+        oof_test_skf[i, :] = clf.predict(test_X)
     oof_test[:] = oof_test_skf.mean(axis=0)
     return oof_train.reshape(-1,1), oof_test.reshape(-1,1)
 
@@ -136,9 +157,9 @@ rf = SkearnHelper(clf=RandomForestClassifier, seed=SEED, params=rf_params)
 et = SkearnHelper(clf=ExtraTreesClassifier, seed=SEED, params=et_params)
 gb = SkearnHelper(clf=GradientBoostingClassifier, seed=SEED, params=gb_params)
 svc = SkearnHelper(clf=SVC, seed=SEED, params=svc_params)
-ada = sklearn(clf=AdaBoostClassifier, seed=SEED, params=ada_params)
+ada = SkearnHelper(clf=AdaBoostClassifier, seed=SEED, params=ada_params)
 
-et_oof_train, et_oof_test = get_oof(et, X_train, y_train, X_test)
-rf_oof_train, rf_oof_test = get_oof(rf, X_train, y_train, X_test)
-ada_oof_train, ada_oof_test = get_oof(ada, X_train, y_train, X_test)
-gb_oof_train, gb_oof_test = get_oof(gb,X_train, y_train, X_test)
+et_oof_train, et_oof_test = get_oof(et, train_X, train_Y, test_X)
+rf_oof_train, rf_oof_test = get_oof(rf, train_X, train_Y, test_X)
+ada_oof_train, ada_oof_test = get_oof(ada, train_X, train_Y, test_X)
+gb_oof_train, gb_oof_test = get_oof(gb, train_X, train_Y, test_X)
