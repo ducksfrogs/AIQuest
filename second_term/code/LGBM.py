@@ -68,28 +68,35 @@ train_X, test_X, train_Y, test_Y = train_test_split(train, target, test_size=0.2
 
 
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+scaler.fit(train_X)
+train_X = scaler.transform(train_X)
+test_X = scaler.transform(train_X)
 
 
-from sklearn.prepro
-#train_data = lgb.Dataset(train_X_scale, label=train_Y)
-#eval_data = lgb.Dataset(test_X_scale, label=test_Y, reference=train_data)
+lgb_train = lgb.Dataset(train_X_scale, label=train_Y)
+lgb_eval = lgb.Dataset(test_X_scale, label=test_Y, reference=train_data)
 #
 #params = {
 #    'task'
 #}
+lgbm_params = {
+    'objective': 'binary',
+    'metric': 'auc',
+    'verbose': -1,
+}
 
-clf = lgb.LGBMClassifier()
-clf.fit(train_X_scale, train_Y)
-y_pred = clf.predict(test_X_scale)
+model = lgb.train(lgbm_params, lgb_train, valid_sets=lgb_eval,
+                  verbose_eval=50, num_boost_rounds=1000,
+                  early_stopping_rounds=100)
 
-y_pred_prob = clf.predict_proba(test_X_scale)
+predict_proba = model.predict(test_X, num_iteration=model.best_iteration)
 
-
-
-pred = clf.predict(test_scale)
 
 sub = pd.read_csv('../input/sample_submission.csv', header=None)
 
 sub[1] = pred.astype('int')
 
-sub.to_csv('submit.csv')
+sub.to_csv('submit.csv', index=False, header=False)
