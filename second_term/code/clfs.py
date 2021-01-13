@@ -63,20 +63,22 @@ train_X, test_X, train_Y, test_Y = train_test_split(train, target, test_size=0.3
 
 
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 
+scaler = StandardScaler()
 scaler = MinMaxScaler()
 scaler.fit(train_X)
-train_X_scale = scaler.transform(train_X)
-test_X_scale = scaler.transform(test_X)
-test_scale = scaler.transform(test)
+train_X = scaler.transform(train_X)
+test_X = scaler.transform(test_X)
+test = scaler.transform(test)
 
 from sklearn.svm import SVC
 
 clf = SVC()
 
-clf.fit(train_X_scale, train_Y)
+clf.fit(train_X, train_Y)
 
-pred = clf.predict(test_scale)
+pred = clf.predict(test)
 
 sub = pd.read_csv('../input/sample_submission.csv', header=None)
 

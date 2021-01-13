@@ -69,11 +69,6 @@ train_X, test_X, train_Y, test_Y = train_test_split(train, target, test_size=0.2
 
 from sklearn.preprocessing import MinMaxScaler
 
-scaler = MinMaxScaler()
-scaler.fit(train_X)
-train_X_scale = scaler.transform(train_X)
-test_X_scale = scaler.transform(test_X)
-test_scale = scaler.transform(test)
 
 from sklearn.prepro
 #train_data = lgb.Dataset(train_X_scale, label=train_Y)
