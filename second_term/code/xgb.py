@@ -1,3 +1,4 @@
+import xgboost as xgb
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -71,30 +72,24 @@ from sklearn.preprocessing import MinMaxScaler
 
 scaler = MinMaxScaler()
 scaler.fit(train_X)
-train_X_scale = scaler.transform(train_X)
-test_X_scale = scaler.transform(test_X)
-test_scale = scaler.transform(test)
-
-from sklearn.prepro
-#train_data = lgb.Dataset(train_X_scale, label=train_Y)
-#eval_data = lgb.Dataset(test_X_scale, label=test_Y, reference=train_data)
-#
-#params = {
-#    'task'
-#}
-
-clf = lgb.LGBMClassifier()
-clf.fit(train_X_scale, train_Y)
-y_pred = clf.predict(test_X_scale)
-
-y_pred_prob = clf.predict_proba(test_X_scale)
+train_X = scaler.transform(train_X)
+test_X = scaler.transform(test_X)
+test = scaler.transform(test)
 
 
+dtrain = xgb.DMatrix(train_X, label=train_Y)
+deval = xgb.DMatrix(test_X, label=test_Y)
 
-pred = clf.predict(test_scale)
+xgb_params = {
+    'objective': 'binary:logistic',
+    'eval_metric': 'logloss'
+}
 
-sub = pd.read_csv('../input/sample_submission.csv', header=None)
+bst = xgb.train(xgb_params,
+            dtrain,
+            num_boost_round=100)
 
+y_pred = bst.predict()
 sub[1] = pred.astype('int')
 
 sub.to_csv('submit.csv')
