@@ -79,6 +79,7 @@ test = scaler.transform(test)
 
 dtrain = xgb.DMatrix(train_X, label=train_Y)
 deval = xgb.DMatrix(test_X, label=test_Y)
+dtest = xgb.DMatrix(test)
 
 xgb_params = {
     'objective': 'binary:logistic',
@@ -89,7 +90,8 @@ bst = xgb.train(xgb_params,
             dtrain,
             num_boost_round=100)
 
-y_pred = bst.predict()
+
+y_pred = bst.predict(dtest)
 sub[1] = pred.astype('int')
 
 sub.to_csv('submit.csv')
